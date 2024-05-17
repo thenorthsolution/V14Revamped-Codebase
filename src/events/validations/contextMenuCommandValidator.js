@@ -64,8 +64,7 @@ module.exports = async (client, interaction) => {
 
     await menuObject.run(client, interaction);
   } catch (err) {
-    console.log(
-      `An error occurred while validating context menu's! ${err}`.red
-    );
+    console.log("An error occurred while validating context menus!".red);
+    console.log(err);
   }
 };
