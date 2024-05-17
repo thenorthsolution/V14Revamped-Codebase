@@ -72,6 +72,7 @@ module.exports = async (client, interaction) => {
 
     await buttonObject.run(client, interaction);
   } catch (err) {
-    console.log(`An error occurred! ${err}`.red);
+    console.log("An error occurred while validating buttons!".red);
+    console.log(err);
   };
 };
