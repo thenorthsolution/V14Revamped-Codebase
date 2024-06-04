@@ -1,15 +1,22 @@
 const path = require("path");
 const getAllFiles = require("./getAllFiles");
 
-module.exports = (exepctions = []) => {
+module.exports = () => {
   let buttons = [];
-  const buttonFiles = getAllFiles(path.join(__dirname, "..", "buttons"));
+  const buttonFolders = getAllFiles(path.join(__dirname, "..", "buttons"), true);
 
-  for (const buttonFile of buttonFiles) {
-    const buttonObject = require(buttonFile);
+  for (const buttonFolder of buttonFolders) {
+    const buttonFiles = getAllFiles(buttonFolder);
 
-    if (exepctions.includes(buttonObject.name)) continue;
-    buttons.push(buttonObject);
+    for (const buttonFile of buttonFiles) {
+      const buttonObject = require(buttonFile);
+
+      if (process.env.MODE === "dev" && buttonObject.devOnly) {
+        localCommands.push(buttonObject);
+      } else if (!buttonObject.devOnly) {
+        localCommands.push(buttonObject);
+      };
+    };
   };
 
   return buttons;

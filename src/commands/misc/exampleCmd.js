@@ -1,18 +1,36 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, PermissionFlagsBits } = require("discord.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("test")
     .setDescription("Test if everything works.")
-    .addStringOption((o) => o
-      .setName("test-option")
-      .setDescription("This is a test option.")
-    )
     .toJSON()
   ,
+  testMode: false,
+  devOnly: false,
+  deleted: false,
   userPermissions: [],
   botPermissions: [],
 
   run: (client, interaction) => {
+    try {
+      //...
+
+    } catch (err) {
+      console.log("[ERROR]".red + "Error in your exampleCmd.js run function:");
+      console.log(err);
+    };
+  },
+
+  // Required for autocomplete option handling ---
+  autocomplete: async (client, interaction) => {
+    try {
+      //...
+
+    } catch (err) {
+      console.log("[ERROR]".red + "Error in your exampleCmd.js autocomplete function:");
+      console.log(err);
+    };
   }
+  // --- Required for autocomplete option handling
 };

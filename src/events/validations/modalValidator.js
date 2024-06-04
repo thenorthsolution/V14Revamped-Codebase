@@ -3,19 +3,19 @@ require("colors");
 const { EmbedBuilder } = require("discord.js");
 const { developersIds, testServerId } = require("../../config.json");
 const mConfig = require("../../messageConfig.json");
-const getButtons = require("../../utils/getButtons");
+const getModals = require("../../utils/getModals");
 
 module.exports = async (client, interaction) => {
-  if (!interaction.isButton() || interaction.customId.includes("*")) return;
-  const buttons = getButtons();
+  if (!interaction.isModalSubmit() || interaction.customId.includes("*")) return;
+  const modals = getModals();
 
-  const { customId, member, guildId, guild, message, user } = interaction;
+  const { customId, member, guildId, guild } = interaction;
 
   try {
-    const buttonObject = buttons.find((button) => button.customId === customId);
-    if (!buttonObject) return;
+    const modalObject = modals.find((modal) => modal.customId === customId);
+    if (!modalObject) return;
 
-    if (buttonObject.devOnly && !developersIds.includes(member.id)) {
+    if (modalObject.devOnly && !developersIds.includes(member.id)) {
       const rEmbed = new EmbedBuilder()
         .setColor(`${mConfig.embedColorError}`)
         .setDescription(`${mConfig.commandDevOnly}`);
@@ -23,7 +23,7 @@ module.exports = async (client, interaction) => {
       return interaction.reply({ embeds: [rEmbed], ephemeral: true });
     };
 
-    if (buttonObject.testMode && guildId !== testServerId) {
+    if (modalObject.testMode && guildId !== testServerId) {
       const rEmbed = new EmbedBuilder()
         .setColor(`${mConfig.embedColorError}`)
         .setDescription(`${mConfig.commandTestMode}`);
@@ -31,8 +31,8 @@ module.exports = async (client, interaction) => {
       return interaction.reply({ embeds: [rEmbed], ephemeral: true });
     };
 
-    if (buttonObject.userPermissions?.length) {
-      for (const permission of buttonObject.userPermissions) {
+    if (modalObject.userPermissions?.length) {
+      for (const permission of modalObject.userPermissions) {
         if (member.permissions.has(permission)) continue;
 
         const rEmbed = new EmbedBuilder()
@@ -43,8 +43,8 @@ module.exports = async (client, interaction) => {
       };
     };
 
-    if (buttonObject.botPermissions?.length) {
-      for (const permission of buttonObject.botPermissions) {
+    if (modalObject.botPermissions?.length) {
+      for (const permission of modalObject.botPermissions) {
         const bot = guild.members.me;
         if (bot.permissions.has(permission)) continue;
 
@@ -56,17 +56,9 @@ module.exports = async (client, interaction) => {
       };
     };
 
-    if (message.interaction?.user.id !== user.id) {
-      const rEmbed = new EmbedBuilder()
-        .setColor(`${mConfig.embedColorError}`)
-        .setDescription(`${mConfig.cannotUseSelect}`);
-
-      return interaction.reply({ embeds: [rEmbed], ephemeral: true });
-    };
-
-    await buttonObject.run(client, interaction);
+    await modalObject.run(client, interaction);
   } catch (err) {
-    console.log("[ERROR]".red + "Error in your buttonValidator.js file:");
+    console.log("[ERROR]".red + "Error in your modalValidator.js file:");
     console.log(err);
   };
 };

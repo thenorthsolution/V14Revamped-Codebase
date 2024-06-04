@@ -1,85 +1,72 @@
 require("colors");
 
-const { EmbedBuilder, Client } = require("discord.js");
-const { developersId, testServerId } = require("../../config.json");
+const { EmbedBuilder } = require("discord.js");
+const { developersIds, testServerId } = require("../../config.json");
 const mConfig = require("../../messageConfig.json");
-const getSelects = require("../../utils/getSelects");
+const getSelectMenus = require("../../utils/getSelectMenus");
 
-/**
- *
- * @param {Client} client
- * @param {import("discord.js").AnySelectMenuInteraction} interaction
- * @returns
- */
 module.exports = async (client, interaction) => {
-  if (!interaction.isAnySelectMenu()) return;
-  const selects = getSelects();
+  if (!interaction.isAnySelectMenu() || interaction.customId.includes("*")) return;
+  const selects = getSelectMenus();
+
+  const { customId, member, guildId, guild, message, user } = interaction;
 
   try {
-    const selectObject = selects.find(
-      (select) => select.customId === interaction.customId
-    );
+    const selectObject = selects.find((select) => select.customId === customId);
     if (!selectObject) return;
 
-    if (selectObject.devOnly) {
-      if (!developersId.includes(interaction.member.id)) {
-        const rEmbed = new EmbedBuilder()
-          .setColor(`${mConfig.embedColorError}`)
-          .setDescription(`${mConfig.commandDevOnly}`);
-        interaction.reply({ embeds: [rEmbed], ephemeral: true });
-        return;
-      }
-    }
+    if (selectObject.devOnly && !developersIds.includes(member.id)) {
+      const rEmbed = new EmbedBuilder()
+        .setColor(`${mConfig.embedColorError}`)
+        .setDescription(`${mConfig.commandDevOnly}`);
 
-    if (selectObject.testMode) {
-      if (interaction.guild.id !== testServerId) {
-        const rEmbed = new EmbedBuilder()
-          .setColor(`${mConfig.embedColorError}`)
-          .setDescription(`${mConfig.commandTestMode}`);
-        interaction.reply({ embeds: [rEmbed], ephemeral: true });
-        return;
-      }
-    }
+      return interaction.reply({ embeds: [rEmbed], ephemeral: true });
+    };
+
+    if (selectObject.testMode && guildId !== testServerId) {
+      const rEmbed = new EmbedBuilder()
+        .setColor(`${mConfig.embedColorError}`)
+        .setDescription(`${mConfig.commandTestMode}`);
+
+      return interaction.reply({ embeds: [rEmbed], ephemeral: true });
+    };
 
     if (selectObject.userPermissions?.length) {
       for (const permission of selectObject.userPermissions) {
-        if (interaction.member.permissions.has(permission)) {
-          continue;
-        }
+        if (member.permissions.has(permission)) continue;
+
         const rEmbed = new EmbedBuilder()
           .setColor(`${mConfig.embedColorError}`)
           .setDescription(`${mConfig.userNoPermissions}`);
-        interaction.reply({ embeds: [rEmbed], ephemeral: true });
-        return;
-      }
-    }
+
+        return interaction.reply({ embeds: [rEmbed], ephemeral: true });
+      };
+    };
 
     if (selectObject.botPermissions?.length) {
       for (const permission of selectObject.botPermissions) {
-        const bot = interaction.guild.members.me;
-        if (bot.permissions.has(permission)) {
-          continue;
-        }
+        const bot = guild.members.me;
+        if (bot.permissions.has(permission)) continue;
+
         const rEmbed = new EmbedBuilder()
           .setColor(`${mConfig.embedColorError}`)
           .setDescription(`${mConfig.botNoPermissions}`);
-        interaction.reply({ embeds: [rEmbed], ephemeral: true });
-        return;
-      }
-    }
 
-    if (interaction.message.interaction) {
-      if (interaction.message.interaction.user.id !== interaction.user.id) {
-        const rEmbed = new EmbedBuilder()
-          .setColor(`${mConfig.embedColorError}`)
-          .setDescription(`${mConfig.cannotUseSelect}`);
-        interaction.reply({ embeds: [rEmbed], ephemeral: true });
-        return;
-      }
-    }
+        return interaction.reply({ embeds: [rEmbed], ephemeral: true });
+      };
+    };
+
+    if (message.interaction?.user.id !== user.id) {
+      const rEmbed = new EmbedBuilder()
+        .setColor(`${mConfig.embedColorError}`)
+        .setDescription(`${mConfig.cannotUseSelect}`);
+        
+      return interaction.reply({ embeds: [rEmbed], ephemeral: true });
+    };
 
     await selectObject.run(client, interaction);
   } catch (err) {
-    console.log(`An error occurred while validating select menus! ${err}`.red);
-  }
+    console.log("[ERROR]".red + "Error in your selectMenuValidator.js file:");
+    console.log(err);
+  };
 };

@@ -1,4 +1,6 @@
 {
-  "testServerId": "testServerId",
-  "developersId": ["developersId"]
+  "testServerId": "0000000000000000000",
+  "developersIds": [
+    "0000000000000000000"
+  ]
 }

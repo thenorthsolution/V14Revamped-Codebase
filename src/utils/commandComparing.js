@@ -1,63 +1,46 @@
-module.exports = (existing, local) => {
-  const changed = (a, b) => JSON.stringify(a) !== JSON.stringify(b);
-
-  if (changed(existing.name, local.data.name) || changed(existing.description || undefined, local.data.description || undefined)) {
-    return true;
+module.exports = (localCommand, existingCommand) => {
+  const commandChoices = (choices = []) => {
+    return choices.map((choice) => ({
+      name: choice.name,
+      nameLocalizations: (choice.nameLocalizations ?? choice.name_localizations) ?? undefined,
+      value: choice.value
+    }));
   };
 
-  const optionsChanged = changed(
-    optionsArray(existing),
-    optionsArray(local.data)
-  );
-
-  return optionsChanged;
-
-  function optionsArray(cmd) {
-    const cleanObject = (obj) => {
-      for (const key in obj) {
-        if (typeof obj[key] === "object") {
-          cleanObject(obj[key]);
-          if (!obj[key] || (Array.isArray(obj[key]) && !obj[key].length)) {
-            delete obj[key];
-          }
-        } else if (obj[key] === undefined) {
-          delete obj[key];
-        };
-      };
-    };
-
-    const normalizeObject = (input) => {
-      if (Array.isArray(input)) {
-        return input.map((item) => normalizeObject(item));
-      };
-
-      const normalizedItem = {
-        type: input.type,
-        name: input.name,
-        description: input.description,
-        options: input.options ? normalizeObject(input.options) : undefined,
-        required: input.required,
-      };
-
-      return normalizedItem;
-    };
-
-    return (cmd.options || []).map((option) => {
-      let cleanedOption = JSON.parse(JSON.stringify(option));
-      cleanedOption.options
-        ? (cleanedOption.options = normalizeObject(cleanedOption.options))
-        : (cleanedOption = normalizeObject(cleanedOption));
-      cleanObject(cleanedOption);
-      return {
-        ...cleanedOption,
-        choices: cleanedOption.choices
-          ? stringifyChoices(cleanedOption.choices)
-          : null,
-      };
-    });
+  const commandOptions = (options = []) => {
+    return options.map((option) => ({
+      type: option.type ?? 1,
+      name: option.name,
+      nameLocalizations: (option.nameLocalizations ?? option.name_localizations) ?? undefined,
+      description: option.description,
+      descriptionLocalizations: (option.descriptionLocalizations ?? option.description_localizations) ?? undefined,
+      options: commandOptions(option.options) ?? undefined,
+      autocomplete: option.autocomplete ?? undefined,
+      channelTypes: (option.channelTypes ?? option.channel_types) ?? undefined,
+      choices: commandChoices(option.choices) ?? undefined,
+      minValue: (option.minValue ?? option.min_value) ?? undefined,
+      maxValue: (option.maxValue ?? option.max_value) ?? undefined,
+      minLength: (option.minLength ?? option.min_length) ?? undefined,
+      maxLength: (option.maxLength ?? option.max_length) ?? undefined,
+      required: option.required ?? false
+    }));
   };
 
-  function stringifyChoices(choices) {
-    return JSON.stringify(choices.map((c) => c.value));
-  };
+  const commandData = (data) => ({
+    nameLocalizations: (data.nameLocalizations ?? data.name_localizations) ?? undefined,
+    description: data.description,
+    descriptionLocalizations: (data.descriptionLocalizations ?? data.description_localizations) ?? undefined,
+    options: commandOptions(data.options) ?? undefined,
+    defaultMemberPermissions: (data.defaultMemberPermissions ?? data.default_member_permissions) ?? undefined,
+    dmPermission: (data.dmPermission ?? data.dm_permission) ?? true,
+    nsfw: data.nsfw ?? false
+  });
+
+  if (
+    JSON.stringify(commandData(localCommand), (_, v) => typeof v === "bigint" ? v.toString() : v)
+    !==
+    JSON.stringify(commandData(existingCommand), (_, v) => typeof v === "bigint" ? v.toString() : v)
+  ) return true;
+
+  return false;
 };
