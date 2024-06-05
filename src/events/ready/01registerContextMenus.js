@@ -1,16 +1,19 @@
 require("colors");
 
-const { testServerId } = require("../../config.json");
 const getApplicationContextMenus = require("../../utils/getApplicationCommands");
 const getLocalContextMenus = require("../../utils/getLocalContextMenus");
+const { testServerId } = require("../../config.json");
 
 module.exports = async (client) => {
   try {
-    const localContextMenus = getLocalContextMenus();
-    const applicationContextMenus = await getApplicationContextMenus(
-      client,
-      testServerId
-    );
+    let guildId = null;
+
+    process.env.MODE === "dev"
+      ? guildId = testServerId
+      : guildId;
+
+    const localCommands = getLocalCommands();
+    const applicationCommands = await getApplicationCommands(client, guildId);
 
     for (const localContextMenu of localContextMenus) {
       const { data } = localContextMenu;
