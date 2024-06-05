@@ -12,9 +12,9 @@ module.exports = () => {
       const buttonObject = require(buttonFile);
 
       if (process.env.MODE === "dev" && buttonObject.devOnly) {
-        localCommands.push(buttonObject);
+        buttons.push(buttonObject);
       } else if (!buttonObject.devOnly) {
-        localCommands.push(buttonObject);
+        buttons.push(buttonObject);
       };
     };
   };
