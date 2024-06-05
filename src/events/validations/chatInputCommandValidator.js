@@ -12,7 +12,7 @@ module.exports = async (client, interaction) => {
   const { commandName, member, guildId, guild } = interaction;
 
   try {
-    const commandObject = localCommands.find((command) => command.name === commandName);
+    const commandObject = localCommands.find((command) => command.data.name === commandName);
     if (!commandObject) return;
 
     if (commandObject.devOnly && !developersIds.includes(member.id)) {
