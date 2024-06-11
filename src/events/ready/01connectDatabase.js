@@ -1,3 +1,4 @@
+require("colors");
 const mongoose = require("mongoose");
 const mongoURI = process.env.MONGODB_URI;
 

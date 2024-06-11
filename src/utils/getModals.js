@@ -1,7 +1,7 @@
 const path = require("path");
 const getAllFiles = require("./getAllFiles");
 
-module.exports = (exceptions = []) => {
+module.exports = () => {
   let modals = [];
   const modalFolders = getAllFiles(path.join(__dirname, "..", "modals"), true);
 

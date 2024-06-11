@@ -12,8 +12,8 @@ module.exports = async (client) => {
       ? guildId = testServerId
       : guildId;
 
-    const localCommands = getLocalCommands();
-    const applicationCommands = await getApplicationCommands(client, guildId);
+    const localContextMenus = getLocalContextMenus();
+    const applicationContextMenus = await getApplicationContextMenus(client, guildId);
 
     for (const localContextMenu of localContextMenus) {
       const { data } = localContextMenu;

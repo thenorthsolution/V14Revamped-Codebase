@@ -11,5 +11,6 @@
   "hasHigherRolePosition": "`❌` This person has a higher role than you have or has the same role as you have.",
   "unableToInteractWithYourself": "`❌` You cannot do that to yourself.",
   "cannotUseButton": "`❌` You cannot use this button.",
+  "cannotUseSelect": "`❌` You cannot use this select menu.",
   "footerText": "Example Text"
 }

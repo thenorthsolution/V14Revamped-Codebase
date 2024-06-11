@@ -56,7 +56,7 @@ module.exports = async (client, interaction) => {
       };
     };
 
-    if (message.interaction && message.interaction.user.id !== user.id) {
+    if (message.interaction && message.interaction?.user.id !== user.id) {
       const rEmbed = new EmbedBuilder()
         .setColor(`${mConfig.embedColorError}`)
         .setDescription(`${mConfig.cannotUseButton}`);
