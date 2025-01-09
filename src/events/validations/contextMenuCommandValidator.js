@@ -12,7 +12,7 @@ module.exports = async (client, interaction) => {
   const { commandName, member, guildId, guild } = interaction;
 
   try {
-    const contextMenuObject = localContextMenus.find((contextMenu) => contextMenu.name === commandName);
+    const contextMenuObject = localContextMenus.find((contextMenu) => contextMenu.data.name === commandName);
     if (!contextMenuObject) return;
 
     if (contextMenuObject.devOnly && !developersIds.includes(member.id)) {
